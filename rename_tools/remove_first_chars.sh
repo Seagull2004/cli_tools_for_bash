@@ -15,6 +15,8 @@ fi
 
 
 find "$1" -type file -name "*.mp3" -exec basename {} \; | while read -r fileName; do
+    # un file del tipo '123 - ciao_mondo.mp3"
+    # diventa del tipo 'ciao_mondo.mp3"
     newFileName=`echo $fileName | cut -d " " -f 3-`
 	mv "$1/$fileName" "$1/$newFileName"
 done
