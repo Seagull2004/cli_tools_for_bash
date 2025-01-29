@@ -101,10 +101,10 @@ print__ "#################################################"
 # i directory attuale
 totalDirs=$(( `find "$1" -type d | wc -l | tr -d " "` * 2 ))
 i=0
-# inizia il ciclo su tutte le directory e sottdirectory trovate
+# inizia il ciclo su tutte le directory e sottdirectory trovate sul computer
 find "$1" -type d | sed "s|$1||g" | while read -r localDir;
 do
-    # ottengo percorsi per raggiungere la directory 
+    # ottengo percorsi per raggiungere la directory nei rispettivi dispositivi
     fullPathToLocalDir="$1$localDir"
     fullPathToPhoneDir="$2$localDir"
     # stampa avanzamento
@@ -125,11 +125,11 @@ do
     else
         echo "$md5Local vs $md5Phone"
     fi
-    # ciclo sui file
+    # ciclo sui file della cartella i-esima del computer
     find "$fullPathToLocalDir" -type f -maxdepth 1 | sed "s|$fullPathToLocalDir||g" | while read -r file;
     do
         #echo -n " - $file"
-        if adb shell "test -f \"$fullPathToPhoneDir$file\""  < /dev/null; then
+        if adb shell "test -f \"$fullPathToPhoneDir${file}\""  < /dev/null; then
             lastModificationTimeFileLocal=`date -r "$fullPathToLocalDir$file" $FORMATO_DATA_DI_MODIFICA`
             lastModificationTimeFilePhone=`adb shell "date -r \"$fullPathToPhoneDir$file\" $FORMATO_DATA_DI_MODIFICA" < /dev/null`
             if [[ $lastModificationTimeFileLocal = $lastModificationTimeFilePhone ]]; then
@@ -165,47 +165,47 @@ totalDirs=$(( `adb shell "find \"$2\" -type d" | wc -l | tr -d " "` * 2 ))
 i=0
 
 
-adb shell "find \"$2\" -type d" | sed "s|$2||g" | while read -r phoneDir; do
+adb shell "find \"$2\" -type d" | sed "s|$2||g" | while read -r phoneDir; 
+do
 
-  # PERCENTUALE
-  i=$(( $i + 1 ))
-  percentage="`bc <<< "scale=2; 50 + $i/$totalDirs * 100" | cut -d. -f1` %"
-  # FINE PERCENTUALE
+    # PERCENTUALE
+    i=$(( $i + 1 ))
+    percentage="`bc <<< "scale=2; 50 + $i/$totalDirs * 100" | cut -d. -f1` %"
+    # FINE PERCENTUALE
 
-  echo $percentage 
-  print__ "📁 $2$phoneDir" $CYAN
+    echo $percentage 
+    print__ "📁 $2$phoneDir" $CYAN
 
-  if test ! -d "$1$phoneDir"; then 
-      print__ "   - LA DIRECTORY NON È PRESENTE SUL PC." $RED -n
-      adb shell "rm -r \"$2$phoneDir\"" < /dev/null > /dev/null
-      if [[ $? == 0 ]]; then
-          print__ " eliminata!" $GREEN
-      else
-          print__ " errore!" $RED
-      fi
-  else
-
-      md5Local=`ls -l -D "%H:%M" "$1$phoneDir" | grep "^-" | tr -s " " " " | cut -d" " -f6- | md5`
-      md5Phone=`adb shell "ls -l \"$2$phoneDir\"" < /dev/null | grep "^-" | tr -s " " " " | cut -d" " -f7- | md5`
-
-      if [[ $md5Phone = $md5Local ]]; then
-          print__ "   - MD5 match! ALL GOOD HERE" $GREEN
-          continue
-      fi
-
-      adb shell "find \"$2$phoneDir\" -type f -maxdepth 1" < /dev/null | sed "s|$2$phoneDir||g" | while read -r file; do
-      if test ! -f "$1$phoneDir$file"; then
-          print__ "   - $file" $YELLOW -n
-          adb shell "rm \"$2$phoneDir$file\"" < /dev/null > /dev/null
-          if [[ $? == 0 ]]; then
-              print__ " elimanto!" $GREEN
-          else
-              print__ " errore!" $RED
-          fi
-      else
-          print__ "   - $file" $GREEN
-      fi
-  done
-  fi
+    if test ! -d "$1$phoneDir"; then 
+        print__ "   - LA DIRECTORY NON È PRESENTE SUL PC." $RED -n
+        adb shell "rm -r \"$2$phoneDir\"" < /dev/null > /dev/null
+        if [[ $? == 0 ]]; then
+            print__ " eliminata!" $GREEN
+        else
+            print__ " errore!" $RED
+        fi
+    else
+        md5Local=`ls -l -D "%H:%M" "$1$phoneDir" | grep "^-" | tr -s " " " " | cut -d" " -f6- | md5`
+        md5Phone=`adb shell "ls -l \"$2$phoneDir\"" < /dev/null | grep "^-" | tr -s " " " " | cut -d" " -f7- | md5`
+        if [[ $md5Phone = $md5Local ]]; then
+            print__ "   - MD5 match! ALL GOOD HERE" $GREEN
+            continue
+        fi
+        adb shell "find \"$2$phoneDir\" -type f -maxdepth 1" < /dev/null | sed "s|$2$phoneDir||g" | while read -r file; 
+        do
+            if test -f "$1$phoneDir$file"; then
+                print__ "   - $file" $GREEN
+            else
+                print__ "   - $file" $YELLOW -n
+                pathOfFileToRemoveOnPhone=${2}${phoneDir}${file}
+                adb shell "rm '$pathOfFileToRemoveOnPhone'" < /dev/null > /dev/null
+                if [[ $? == 0 ]]; then
+                    print__ " elimanto!" $GREEN
+                else
+                    print__ " errore!" $RED
+                fi
+            fi
+        done
+    fi
 done 
 
