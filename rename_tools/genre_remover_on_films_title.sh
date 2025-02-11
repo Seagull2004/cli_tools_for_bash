@@ -11,6 +11,6 @@ do
     title=`echo $title_and_extension | rev | cut -d. -f2- | rev`
     extension=`echo $title_and_extension | rev | cut -d. -f1 | rev`
 
-
     echo "$title ($year).$extension"
-done
+    #mv "$1/$file" "$1/$title ($year).$extension"
+done | sort
