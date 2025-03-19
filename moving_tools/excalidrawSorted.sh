@@ -53,3 +53,7 @@ do
     mv "$pathname" "$onlyDirPathname/excalidraw"
 done
 echo "done!"
+
+
+
+

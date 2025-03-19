@@ -1,16 +1,17 @@
 #!/bin/bash
-# Questo script permetterà di sincronizzare il contenuto di una cartella di questo pc ($1) con il contenuto di una cartella del telefono android ($2)
-# $1 percorso alla cartella "da sincronzzare" (pc)
-# $2 percorso alla cartella di destinazione (telefono)
+# Sincronizzare il contenuto di una cartella di questo pc ($1) all'interno di una direcotry del telefono android ($2)
+# $1 percorso alla cartella "da copiare" (pc)
+# $2 percorso alla cartella che riceverà la versione sincronizzata (telefono)
 
 # e.g. $1 = /Users/macpro/Documents/vault 
 #      $2 = /sdcard/Documents/vault
 # e.g. $1 = /Users/macpro/Music/playlists
 #      $2 = /sdcard/Music/playlists
 
-# COSTANTI E FUNZIONI
+# COSTANTI
 FORMATO_DATA_DI_MODIFICA="+%Y%m%d%H%M"
 LISTA_FILE_TELEFONO_CON_DATA_DI_MODIFICA="tmp"
+
 COLOR_OFF='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -26,6 +27,7 @@ H_PINK='\033[0;45m'
 H_CYAN='\033[0;46m'
 
 
+# FUNZIONI
 # $1 text
 # $2 color
 # $3 se -n allora non va a capo
@@ -37,25 +39,31 @@ print__() {
     fi
 }
 
+print_usage() {
+    print__ "usage:" $H_PINK -n
+    echo " anysync ~/path/to/dir /sdcard/path/to/dir"
+}
 
 
 
-
-########################################################################################
+###################################
 ## 0. CONTROLLO PARAMETRI DI INPUT
-########################################################################################
+###################################
 
-# il numero di parametri deve essere esattamente 2
+
+# Il numero di parametri deve essere esattamente 2
 if [[ $# -ne "2" ]]; then
     print__ "bad parameter:" $H_RED -n
     echo " wrong number of parameter"
+    print_usage
     exit 1
 fi
 
-# entrami i parametri devono essere una directory
+# Entrami i parametri devono essere una directory
 if [[ !( -d $1 ) ]]; then
     print__ "bad parameter:" $H_RED -n
     echo " $1 is not a directory" 
+    print_usage
     exit 1
 fi
 if adb shell "test ! -d \"$2\""; then
@@ -70,17 +78,19 @@ if adb shell "test ! -d \"$2\""; then
     fi
 fi
 
-# entrai i parametri non devono avere '/' come carattere finale
+# Entrambi i parametri non devono avere '/' come carattere finale
 lastCharFirstParameter=${1:0-1}
 lastCharSecondParameter=${2:0-1}
 if [[ $lastCharFirstParameter = '/' ]]; then
     print__ "bad parameter:" $H_RED -n
     echo " a directory must not end with '/' character" 
+    print_usage
     exit 1
 fi
 if [[ $lastCharSecondParameter = '/' ]]; then
     print__ "bad parameter:" $H_RED -n
     echo " a directory must not end with '/' character" 
+    print_usage
     exit 1
 fi
 
@@ -88,19 +98,14 @@ fi
 print__ "#################################################"
 print__ "## 1. COPIA DI OGNI FILE PRESENTE SUL COMPUTER ##"
 print__ "#################################################"
-## per leggere la data di ultima modifica di un file/dir su mac:        stat -f %m $file
-## per leggere la data di ultima modifica di un file/dir su mac:        date -r $file "+%Y%m%d"
-## per leggere la data di ultima modifica di un file/dir su mac:        stat -f %Sm -t %Y-%m-%d-%H-%M $file
-
-## per leggere la data di ultima modifica di un file/dir su telefono:   stat -c %Y $file
-## per leggere la data di ultima modifica di un file/dir su telefono:   date -r $file "+%Y%m%d"
-## per leggere la data di ultima modifica di un file/dir su telefono:   stat -c %y file1.txt | cut -d: -f1-2 | tr " :" "--"
 
 # variabili utilizzate per permettere di fornire un'idea sull'avanzamento del lavoro
 # totalDirs directory totali da ciclare
 # i directory attuale
 totalDirs=$(( `find "$1" -type d | wc -l | tr -d " "` * 2 ))
 i=0
+
+
 # inizia il ciclo su tutte le directory e sottdirectory trovate sul computer
 find "$1" -type d | sed "s|$1||g" | while read -r localDir;
 do
