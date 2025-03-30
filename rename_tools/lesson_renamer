@@ -2,39 +2,44 @@
 # script per convertire il nome di un file
 # "Lezione XX - dd.mm.YYYY.md" -> "YYYYmmdd.md"
 
+echo "Questo script è stato creato per un uso molto specifico, convertire i nomi dei file in questo modo:"
+echo "Lezione XX - dd.mm.YYYY.md -> YYYYmmdd.md"
+echo -n "sei sicuro di voler continuare? [y/n] > "
 
-cd "$1"
-pwd
-echo $#
-if [[ $# -ne 0 || "$1" == "" ]]; then
-	echo "ASSICURARSI DI AVER SCRITTO CORRETTAMENTE IL PERCORSO ALLA CARTELLA"
-	exit
+read answer
+
+if [[ $answer != "y" ]]; then
+    echo "ok dai, arrivederci"
+    exit 0
 fi
 
 
-echo "gg"
-pwd
-exit
+if [[ ! -d $1 ]]; then
+    echo "pls seleziona (tra i parametri del comado) una cartella valida"
+    exit 1 
+fi
 
-for file in Lezione*; do
-	estensione=${file##*.}
 
-    	giorno=$(echo "$file" | cut -d ' ' -f4 | cut -d '.' -f1)
-    	if (($giorno <= 9)); then
-    	        giorno=0$giorno
-    	fi
+find "$1" -type f -name "*.md" | while read -r file
+do
+    estensione=${file##*.}
 
-    	mese=$(echo "$file" | cut -d '-' -f2 | cut -d '.' -f2)
-    	if (($mese <= 9)); then
-    	        mese=0$mese
-    	fi
+    giorno=`echo "$file" | cut -d ' ' -f4 | cut -d '.' -f1`
 
-    	anno=$(echo "$file" | cut -d '-' -f2 | cut -d '.' -f3)
+    if [[ $giorno -le 9 ]]; then
+        giorno=0$giorno
+    fi
 
-    	
-	nuovo_nome="$anno$mese${giorno}0930.$estensione"
-    	echo "$file -> $nuovo_nome"
+    mese=$(echo "$file" | cut -d '-' -f2 | cut -d '.' -f2)
+    if (($mese <= 9)); then
+        mese=0$mese
+    fi
 
-	# SCOMMENTA SOLO SE SEI SODDISFATTO DEL RISULTATO ⤵️
-    	mv "$file" "$nuovo_nome"
+    anno=$(echo "$file" | cut -d '-' -f2 | cut -d '.' -f3)
+
+    nuovo_nome="$anno$mese${giorno}.$estensione"
+
+    #echo "mv "$file" "$1/$nuovo_nome""
+    # SCOMMENTA SOLO SE SEI SODDISFATTO DEL RISULTATO ⤵️
+    mv "$file" "$1/$nuovo_nome"
 done

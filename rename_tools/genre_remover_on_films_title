@@ -1,6 +1,24 @@
 #!/bin/bash
 # "ANIMAZIONE 2011 (08) - rango.mp4" => "rango (2011).mp4"
 
+echo "Questo script è stato creato per un uso molto specifico, convertire i nomi dei file in questo modo:"
+echo "[ANIMAZIONE 2011 (08) - rango.mp4] => [rango (2011).mp4]"
+echo -n "sei sicuro di voler continuare? [y/n] > "
+
+read answer
+
+if [[ $answer != "y" ]]; then
+    echo "ok dai, arrivederci"
+    exit 0
+fi
+
+
+if [[ ! -d $1 ]]; then
+    echo "pls seleziona (tra i parametri del comado) una cartella valida"
+    exit 1 
+fi
+
+
 find $1 -type f -exec basename {} \; | while read -r file
 do
     year=`echo $file | cut -d "(" -f1 | rev`
