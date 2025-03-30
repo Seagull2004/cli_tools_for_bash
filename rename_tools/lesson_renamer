@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 # script per convertire il nome di un file
 # "Lezione XX - dd.mm.YYYY.md" -> "YYYYmmdd.md"
 

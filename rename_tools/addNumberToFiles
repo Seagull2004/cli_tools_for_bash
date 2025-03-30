@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 # rinomina una lista di file .mp3 all'interno di una cartella aggiugendo dei nomi all'inizio di ogni file
 
 if [[ $# == 0 ]]; then
