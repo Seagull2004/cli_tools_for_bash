@@ -1,0 +1,63 @@
+#!/bin/bash
+# rinomina una lista di file .mp3 all'interno di una cartella aggiugendo dei nomi all'inizio di ogni file
+
+if [[ $# < 1 ]]; then
+	echo "troppi pochi parametri"
+    echo "usage numerateFiles [dir] [regex (optional)] [starting from (optional)]"
+    echo "==================================="
+    echo "| example:                        |"
+    echo "| numerateFiles . \"*.mp3\"         |"
+    echo "==================================="
+	exit 1
+fi
+
+if [[ ! -d "$1" ]]; then
+	echo "la directory $1 non esiste"
+	exit 1
+fi
+
+lastCharFirstParameter=${1:0-1}
+if [[ $lastCharFirstParameter = '/' ]]; then
+  echo "a directory must not end with '/' character" 
+  exit 1
+fi
+
+
+i=1
+
+if [[ $3 != "" ]]; then
+    i=$3
+fi
+
+# se non viene specificato il secondo parametro la numerazione viene applicata a tutti i file
+regex="*"
+if [[ $2 != "" ]]; then
+    regex=$2
+fi
+
+find "$1" -type f -name "$regex" | while read -r file
+do
+    onlyName=`echo $file | rev | cut -d "/" -f1 | rev`
+    onlyDirs=`echo $file | rev | cut -d "/" -f2- | rev`
+    
+    # cerca il metadato "Artista" nel file (se c'è più di un artista prende solo il primo)
+	# artist=$(exiftool "$file" | grep "Artist " | cut -d : -f 2 | sed "s/ //" | cut -d "/" -f1)
+
+	# if [[ $i -le 9 ]]; then
+	# 	# !!!
+	# 	#newName="0$i - $artist - ${onlyName}"
+	# 	newName="0$i - ${file}"
+	# else 
+	# 	# !!!
+	# 	#newName="$i - $artist - ${onlyName}"
+	# 	newName="$i - ${file}"
+	# fi
+
+	newName="$i - $onlyName"
+
+	# !!!
+	#echo "mv "$file" "${onlyDirs}/${newName}""
+    mv "$file" "${onlyDirs}/${newName}"
+    
+	i=$((i + 1))
+done

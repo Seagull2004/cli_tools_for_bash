@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [[ $# < 1 ]]; then
+	echo "troppi pochi parametri"
+    echo "usage: unNumerateFiles [dir] [regex(optional)]"
+    echo "==================================="
+    echo "| example:                        |"
+    echo "| unNumerateFiles . \"*.mp3\"       |"
+    echo "==================================="
+	exit 1
+fi
+
+if [[ ! -d $1 ]]; then
+    echo "scegliere una cartella valida"
+    exit 1
+fi
+
+# se non viene specificato il secondo parametro la numerazione viene applicata a tutti i file
+regex="*"
+if [[ $2 != "" ]]; then
+    regex=$2
+fi
+
+lastChar=`echo $1 | rev`
+lastChar=${lastChar:0:1}
+
+if [[ $lastChar == "/" ]]; then
+    echo "pls rimuovi '/' dalla file del parametro" 
+    exit
+fi
+
+
+find "$1" -type file -name "$regex" -exec basename {} \; | while read -r fileName; do
+    # un file del tipo '123 - ciao_mondo.mp3"
+    # diventa del tipo 'ciao_mondo.mp3"
+    newFileName=`echo "$fileName" | cut -d " " -f 3-`
+	mv "$1/$fileName" "$1/$newFileName"
+done
