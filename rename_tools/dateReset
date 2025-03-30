@@ -1,9 +1,15 @@
 #!/bin/bash
 
-if [[ ! -d $1 ]]; then
-    echo "inserire il nome di una cartella pls" 
+if [[ $# < 1 ]]; then
+	echo "troppi pochi parametri"
+    echo "usage dateReset [dir]"
+	exit 1
 fi
 
+if [[ ! -d "$1" ]]; then
+	echo "la directory $1 non esiste"
+	exit 1
+fi
 
 
 find $1 -type f -maxdepth 1 | while read -r file; do
