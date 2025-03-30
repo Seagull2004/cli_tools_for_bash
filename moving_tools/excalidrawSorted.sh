@@ -42,6 +42,12 @@
 #     └── dispense2324 (alta leggibilità).pdf
 
 VAULT="/Users/macpro/Documents/vault"
+
+if [[ ! -d $VAULT ]]; then
+    echo "attenzione, la vault non è stata definita correttamente"
+    exit 1
+fi
+
 totFiles=`find "$VAULT" -name "*Drawing*excalidraw.md" | wc -l | tr -d " "`
 
 echo -n "sorting excalidraw file... "
@@ -53,7 +59,3 @@ do
     mv "$pathname" "$onlyDirPathname/excalidraw"
 done
 echo "done!"
-
-
-
-
