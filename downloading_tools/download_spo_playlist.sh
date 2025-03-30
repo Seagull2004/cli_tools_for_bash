@@ -1,6 +1,8 @@
 # !/bin/bash
+# DISCLAIMER: altenativa (non migliore però) a spotdl
+#
+# questo script funziona solo se yank.d3v.co.uk funziona
 # L'idea è molto semplice: concatenare l'id della playlist passata come parametro in seguito alla stringa:
-
 
 if [[ $1 == "" ]]; then
 	echo "usage: command {spotify link}"
