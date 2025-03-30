@@ -1,7 +1,16 @@
-# !/bin/bash
+#!/bin/bash
 # Ecco come leggere dei metadati da dei file usando il comando exiftool
 
-cd "/Users/macpro/Music/playlist/eternal sunshine/"
+if [[ $# < 1 ]]; then
+	echo "usage: command [dir]"
+    echo "e vedrai che tutti i file annidati nelle sottocartelle di [dir] verranno spostati in [dir]"
+	exit 0
+fi
+
+if [[ ! -d $1 ]]; then
+    echo "fornire una cartella pls"
+    exit 1
+fi
 
 for file in * 
 do
