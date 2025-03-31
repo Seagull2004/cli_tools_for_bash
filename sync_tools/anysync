@@ -1,17 +1,16 @@
 #!/bin/bash
-# Sincronizzare il contenuto di una cartella di questo pc ($1) all'interno di una direcotry del telefono android ($2)
+# Permette di sincronizzare il contenuto di una cartella di questo pc ($1) all'interno di una direcotry del telefono android ($2)
 # $1 percorso alla cartella "da copiare" (pc)
 # $2 percorso alla cartella che riceverà la versione sincronizzata (telefono)
-
 # e.g. $1 = /Users/macpro/Documents/vault 
 #      $2 = /sdcard/Documents/vault
 # e.g. $1 = /Users/macpro/Music/playlists
 #      $2 = /sdcard/Music/playlists
 
+
 # COSTANTI
 FORMATO_DATA_DI_MODIFICA="+%Y%m%d%H%M"
 LISTA_FILE_TELEFONO_CON_DATA_DI_MODIFICA="tmp"
-
 COLOR_OFF='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,27 +37,23 @@ print__() {
         printf "$2$1$COLOR_OFF\n"
     fi
 }
-
+# stampa la sintassi di utilizzo di questo comando
 print_usage() {
     print__ "usage:" $H_PINK -n
     echo " anysync ~/path/to/dir /sdcard/path/to/dir"
 }
 
 
-
 ###################################
 ## 0. CONTROLLO PARAMETRI DI INPUT
 ###################################
-
-
-# Il numero di parametri deve essere esattamente 2
+# Il numero di parametri deve essere esattamente 2 (una cartella origine ($1) e una destinazione ($2))
 if [[ $# -ne "2" ]]; then
     print__ "bad parameter:" $H_RED -n
     echo " wrong number of parameter"
     print_usage
     exit 1
 fi
-
 # Entrami i parametri devono essere una directory
 if [[ !( -d $1 ) ]]; then
     print__ "bad parameter:" $H_RED -n
@@ -77,7 +72,6 @@ if adb shell "test ! -d \"$2\""; then
         exit 1
     fi
 fi
-
 # Entrambi i parametri non devono avere '/' come carattere finale
 lastCharFirstParameter=${1:0-1}
 lastCharSecondParameter=${2:0-1}
@@ -98,24 +92,17 @@ fi
 print__ "#################################################"
 print__ "## 1. COPIA DI OGNI FILE PRESENTE SUL COMPUTER ##"
 print__ "#################################################"
-
-# variabili utilizzate per permettere di fornire un'idea sull'avanzamento del lavoro
-# totalDirs directory totali da ciclare
-# i directory attuale
-totalDirs=$(( `find "$1" -type d | wc -l | tr -d " "` * 2 ))
-i=0
-
-
-# inizia il ciclo su tutte le directory e sottdirectory trovate sul computer
+totalDirs=$(( `find "$1" -type d | wc -l | tr -d " "` * 2 )) # numero di directory totali su cui andremo a ciclare
+i=0 # directory i-esima nella nostra iterazione
+# ciclo su tutte le directory trovate nell'origine ($1) i.e. nel computer
 find "$1" -type d | sed "s|$1||g" | while read -r localDir;
 do
-    # ottengo percorsi per raggiungere la directory nei rispettivi dispositivi
+    # ottengo i percorsi per raggiungere la directory i-esima nei rispettivi dispositivi
     fullPathToLocalDir="$1$localDir"
     fullPathToPhoneDir="$2$localDir"
     # stampa avanzamento
     i=$(( $i + 1 ))
     percentage="`bc <<< "scale=2; $i/$totalDirs * 100" | cut -d. -f1` %"
-    # stampa info
     echo $percentage
     print__ "📁 $fullPathToLocalDir" $CYAN 
     adb shell "mkdir -p \"$fullPathToPhoneDir\"" < /dev/null
@@ -130,16 +117,19 @@ do
     else
         echo "$md5Local vs $md5Phone"
     fi
-    # ciclo sui file della cartella i-esima del computer
+    # ciclo SUI FILE della cartella i-esima del computer
     find "$fullPathToLocalDir" -type f -maxdepth 1 | sed "s|$fullPathToLocalDir||g" | while read -r file;
     do
-        #echo -n " - $file"
+        # echo -n " - $file" # debug
         if adb shell "test -f \"$fullPathToPhoneDir${file}\""  < /dev/null; then
-            lastModificationTimeFileLocal=`date -r "$fullPathToLocalDir$file" $FORMATO_DATA_DI_MODIFICA`
-            lastModificationTimeFilePhone=`adb shell "date -r \"$fullPathToPhoneDir$file\" $FORMATO_DATA_DI_MODIFICA" < /dev/null`
-            if [[ $lastModificationTimeFileLocal = $lastModificationTimeFilePhone ]]; then
+            # se il file esiste già sul telefono dobbiamo assicurarci che abbia la data di modifica uguale al file che si trova sul computer
+            mTimeLocalFile=`date -r "$fullPathToLocalDir$file" $FORMATO_DATA_DI_MODIFICA`
+            mTimePhoneFile=`adb shell "date -r \"$fullPathToPhoneDir$file\" $FORMATO_DATA_DI_MODIFICA" < /dev/null`
+            if [[ $mTimeLocalFile = $mTimePhoneFile ]]; then
+                # il file esiste ed è aggioranto possiamo procedere
                 print__ "   - $file" $GREEN
             else
+                # il file presente sul telefono necessità di essere aggiorato
                 print__ "   - $file" $YELLOW -n
                 adb push "$fullPathToLocalDir$file" "$fullPathToPhoneDir" < /dev/null > /dev/null
                 if [[ $? == 0 ]]; then
@@ -149,6 +139,7 @@ do
                 fi
             fi 
         else
+            # se il file non è presente sul telefono
             print__ "   - $file" $YELLOW -n
             adb push "$fullPathToLocalDir$file" "$fullPathToPhoneDir" < /dev/null > /dev/null
             if [[ $? == 0 ]]; then
@@ -160,27 +151,23 @@ do
     done
 done
 
+
 echo
 echo "#########################################################"
 echo "## 2. PULIZIA DI FILE IN ECCESSO PRESENTI SUL TELEFONO ##"
 echo "#########################################################"
-
-# variabili utilizzate per permettere di fornire un'idea sull'avanzamento del lavoro
-totalDirs=$(( `adb shell "find \"$2\" -type d" | wc -l | tr -d " "` * 2 ))
-i=0
-
-
+totalDirs=$(( `adb shell "find \"$2\" -type d" | wc -l | tr -d " "` * 2 )) # numero di directory su cui andremo a ciclare
+i=0 # numero della direcotry i-esima
+# ciclamo su tutte le directory presenti sul telefono (a partire da $2 ovviamente)
 adb shell "find \"$2\" -type d" | sed "s|$2||g" | while read -r phoneDir; 
 do
-
-    # PERCENTUALE
+    # stampiamo progresso (considerando che il 50% del lavoro è già stato fatto)
     i=$(( $i + 1 ))
     percentage="`bc <<< "scale=2; 50 + $i/$totalDirs * 100" | cut -d. -f1` %"
-    # FINE PERCENTUALE
-
     echo $percentage 
     print__ "📁 $2$phoneDir" $CYAN
 
+    # se la directory i-esima che abbiamo trovato sul telefono non è presente sul computer possiamo eliminarla
     if test ! -d "$1$phoneDir"; then 
         print__ "   - LA DIRECTORY NON È PRESENTE SUL PC." $RED -n
         adb shell "rm -r \"$2$phoneDir\"" < /dev/null > /dev/null
@@ -189,28 +176,34 @@ do
         else
             print__ " errore!" $RED
         fi
-    else
-        md5Local=`ls -l -D "%H:%M" "$1$phoneDir" | grep "^-" | tr -s " " " " | cut -d" " -f6- | md5`
-        md5Phone=`adb shell "ls -l \"$2$phoneDir\"" < /dev/null | grep "^-" | tr -s " " " " | cut -d" " -f7- | md5`
-        if [[ $md5Phone = $md5Local ]]; then
-            print__ "   - MD5 match! ALL GOOD HERE" $GREEN
-            continue
-        fi
-        adb shell "find \"$2$phoneDir\" -type f -maxdepth 1" < /dev/null | sed "s|$2$phoneDir||g" | while read -r file; 
-        do
-            if test -f "$1$phoneDir$file"; then
-                print__ "   - $file" $GREEN
-            else
-                print__ "   - $file" $YELLOW -n
-                pathOfFileToRemoveOnPhone=${2}${phoneDir}${file}
-                adb shell "rm '$pathOfFileToRemoveOnPhone'" < /dev/null > /dev/null
-                if [[ $? == 0 ]]; then
-                    print__ " elimanto!" $GREEN
-                else
-                    print__ " errore!" $RED
-                fi
-            fi
-        done
+        continue
     fi
+    # se siamo arrivati qui la directory esiste anche sul computer
+    # test md5
+    md5Local=`ls -l -D "%H:%M" "$1$phoneDir" | grep "^-" | tr -s " " " " | cut -d" " -f6- | md5`
+    md5Phone=`adb shell "ls -l \"$2$phoneDir\"" < /dev/null | grep "^-" | tr -s " " " " | cut -d" " -f7- | md5`
+    if [[ $md5Phone = $md5Local ]]; then
+        print__ "   - MD5 match! ALL GOOD HERE" $GREEN
+        continue
+    fi
+    # se siamo arrivati qui l'hash è diverso quindi dobbiamo controllare eventuali file da rimuovere
+    # cicliamo SUI FILE presenti nella cartella del telefono
+    adb shell "find \"$2$phoneDir\" -type f -maxdepth 1" < /dev/null | sed "s|$2$phoneDir||g" | while read -r file; 
+    do
+        if test -f "$1$phoneDir$file"; then
+            # il file è presente sul computer possiamo andare avanti
+            print__ "   - $file" $GREEN
+            continue
+        else
+            # il file è presente sul telefono ma non sul compute: dobbiamo eliminarlo
+            print__ "   - $file" $YELLOW -n
+            pathOfFileToRemoveOnPhone=${2}${phoneDir}${file}
+            adb shell "rm '$pathOfFileToRemoveOnPhone'" < /dev/null > /dev/null
+            if [[ $? == 0 ]]; then
+                print__ " elimanto!" $GREEN
+            else
+                print__ " errore!" $RED
+            fi
+        fi
+    done
 done 
-
