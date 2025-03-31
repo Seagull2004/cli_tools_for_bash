@@ -116,6 +116,8 @@ do
         continue
     else
         echo "$md5Local vs $md5Phone"
+        #echo "$fListWithModTimePhone" > ~/Desktop/phone.txt
+        #echo "$fListWithModTimeLocal" > ~/Desktop/local.txt
     fi
     # ciclo SUI FILE della cartella i-esima del computer
     find "$fullPathToLocalDir" -type f -maxdepth 1 | sed "s|$fullPathToLocalDir||g" | while read -r file;
