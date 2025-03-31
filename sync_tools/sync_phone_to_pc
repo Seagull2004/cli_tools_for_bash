@@ -7,14 +7,12 @@
 #
 #
 # esempio di utlizzo:
-# ./sync_phone_to_pc.sh /sdcard/DCIM/Camera /Volumes/home/Backups/michele 2024 
-# ./sync_phone_to_pc.sh /sdcard/DCIM/Camera /Volumes/home/Backups/michele 2025 
+# ./sync_phone_to_pc.sh /sdcard/DCIM/Camera /Volumes/home/Backups/pipp 2024 
+# ./sync_phone_to_pc.sh /sdcard/DCIM/Camera /Volumes/home/Backups/pippo 2025 
 
 
 
 # PRIMA PARTE: CONTROLLO PARAMETRI
-#
-#
 #
 # esattamente 3 parametri
 # - source directory (on phone)
