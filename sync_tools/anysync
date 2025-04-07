@@ -47,6 +47,15 @@ print_usage() {
 ###################################
 ## 0. CONTROLLO PARAMETRI DI INPUT
 ###################################
+# Controllo che ci sia almeno un dispositivo connesso
+nDevices=`adb devices | wc -l`
+nDevices=$(( nDevices - 1)) # ignorare la linea titolo stampata dal comando adb devices
+if [[ $nDevices -eq 1 ]]; then
+    print__ "error:" $H_RED -n
+    echo " there are no attached devices!"
+    exit 1
+fi
+
 # Il numero di parametri deve essere esattamente 2 (una cartella origine ($1) e una destinazione ($2))
 if [[ $# -ne "2" ]]; then
     print__ "bad parameter:" $H_RED -n
