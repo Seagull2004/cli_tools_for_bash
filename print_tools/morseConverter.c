@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     }
     if (argc < 3) {
         printf("error: this program require 2 or more parameter \n");
-        printf("If you don't know how the program work type: morseConverter --help\n");
+        printfUsage(); 
         return 1;
     }
     if (strcmp(argv[1], "-ma") && strcmp(argv[1], "-am")) {
@@ -258,7 +258,7 @@ char* convertCharacterToMorse(char character) {
 }
 
 void printfUsage() { 
-    printf("===============================================================\n");
+    printf("================================================================\n");
     printf("| Usage: morseConverter [OPTION] [TEXT TO CONVERT]             |\n");
     printf("|                                                              |\n");
     printf("|          ------------------------------------------          |\n");
