@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Verifica argomenti
+if [ "$#" -ne 3 ]; then
+    echo "Uso: clip <file> <start_secondi> <end_secondi>"
+    exit 1
+fi
+
+INPUT="$1"
+START="$2"
+END="$3"
+DURATION=$((END - START))
+N_EXISTING_CLIPS=`find ~/Desktop/ -type f -name "clip*" | wc -l | tr -d " "`
+
+OUTPUT="clip_$N_EXISTING_CLIPS.mp4"
+
+# Estrai e converti con bitrate 3000k
+ffmpeg -ss "$START" -t "$DURATION" -i "$INPUT" \
+  -c:v libx264 -b:v 8000k -c:a aac -b:a 192k \
+  -movflags +faststart "/Users/macpro/Desktop/$OUTPUT"
+
+# # Copia il file negli appunti
+# if command -v pbcopy &> /dev/null; then
+#     # macOS: copia il file binario nei clipboard (come path)
+#     echo -n "~/Desktop/$OUTPUT" | pbcopy
+#     echo "File copiato negli appunti (percorso): ~/Desktop/$OUTPUT"
+# elif command -v xclip &> /dev/null; then
+#     # Linux X11
+#     xclip -selection clipboard -t video/mp4 -i "~/Desktop/$OUTPUT"
+#     echo "File video copiato negli appunti con xclip."
+# elif command -v wl-copy &> /dev/null; then
+#     # Linux Wayland
+#     wl-copy < "~/Desktop/$OUTPUT"
+#     echo "File video copiato negli appunti con wl-copy."
+# else
+#     echo "Attenzione: nessun comando per gli appunti trovato (pbcopy, xclip, wl-copy)"
+# fi
+#
+#

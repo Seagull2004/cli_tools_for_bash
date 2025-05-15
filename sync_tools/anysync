@@ -115,6 +115,11 @@ do
     echo $percentage
     print__ "📁 $fullPathToLocalDir" $CYAN 
     adb shell "mkdir -p \"$fullPathToPhoneDir\"" < /dev/null
+    ## dot folder (ignore dot folders)
+    if [[ "$localDir" =~ /\..*/ ]]; then
+        echo "   - dot folder! ignored"
+        continue
+    fi
     ## md5 test
     fListWithModTimeLocal=`ls -l -D "%H:%M" "$fullPathToLocalDir" | grep "^-" | tr -s " " " " | cut -d" " -f6-`
     fListWithModTimePhone=`adb shell "ls -l \"$fullPathToPhoneDir\"" < /dev/null | grep "^-" | tr -s " " " " | cut -d" " -f7-`
