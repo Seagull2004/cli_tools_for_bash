@@ -1,9 +1,12 @@
 #!/bin/bash
+# Descrizion:
+# questo script di occupa di ordinare tutti i file excalidraw 
+# (della vault di obsidian) all'interno di una cartella apposita.
 
-# questo script di occupa di ordinare tutti i file excalidraw (della vault di obsidian) all'interno di una cartella apposita 
-#
 # e.g. 
-# situazione iniziale:
+#
+# 
+# SITUAZIONE INIZIALE:
 # .
 # ├── 202410151629.md
 # ├── 202410171328.md
@@ -21,7 +24,10 @@
 # ├── logica matematica 2425-1.md
 # └── materiale
 #     └── dispense2324 (alta leggibilità).pdf
-# situazione post script:
+# 
+# 
+# 
+# SITUAZIONE POST SCRIPT:
 # .
 # ├── 202410151629.md
 # ├── 202410171328.md
@@ -41,20 +47,25 @@
 # └── materiale
 #     └── dispense2324 (alta leggibilità).pdf
 
+
 VAULT="/Users/macpro/Documents/vault"
 
+# controllo esistenza di VAULT
 if [[ ! -d $VAULT ]]; then
     echo "attenzione, la vault non è stata definita correttamente"
     exit 1
 fi
 
-totFiles=`find "$VAULT" -name "*Drawing*excalidraw.md" | wc -l | tr -d " "`
+# numero totale di file excalidraw 
+# totFiles=`find "$VAULT" -name "*Drawing*excalidraw.md" | wc -l | tr -d " "`
 
 echo -n "sorting excalidraw file... "
+# -v: inversion match del comando find
 find "$VAULT" -name "*Drawing*excalidraw.md" | grep "/excalidraw/" -v | while read -r pathname
 do
-    file=`echo $pathname | rev | cut -d/ -f1 | rev`
+    # basename=`echo $pathname | rev | cut -d/ -f1 | rev`
     onlyDirPathname=`echo $pathname | rev | cut -d/ -f2- | rev`
+    # -p: crea cartella solo se non esiste
     mkdir -p "$onlyDirPathname/excalidraw"
     mv "$pathname" "$onlyDirPathname/excalidraw"
 done
