@@ -1,0 +1,56 @@
+#!/bin/bash
+
+OUTPUT_FILE="$HOME/Desktop/clip.webm"
+
+isCrfPresent=0
+
+if [[ $# -lt 1 ]]; then
+  echo "non hai inserito parametri a sufficienza!"
+  echo "usage: clipToSticker ~/path/to/clip.mp4 <crf>"
+  echo "crf è un intero tra 31 e 64, maggiore il crf, maggiore la compressione"
+  exit 1
+fi
+
+if [[ ! -f $1 ]]; then
+  echo "assicurati che il file sia esistente"
+  exit 1
+fi
+
+if [[ $# -ge 2 ]]; then
+  # controlliamo che il secondo paramtro sia conforme a <crf> ossia un intero tra 31 e 64
+  if [[ $2 -gt 30 && $2 -lt 65 ]]; then
+    isCrfPresent=1
+  else
+    echo "crf non valido!"
+    exit 1
+  fi
+fi
+
+
+if [[ isCrfPresent -eq 1 ]]; then
+  ffmpeg -i $1 \
+  -vf "scale=512:512:force_original_aspect_ratio=decrease,fps=30" \
+  -c:v libvpx-vp9 \
+  -b:v 0 \
+  -crf $2 \
+  -an \
+  -deadline realtime \
+  -row-mt 1 \
+  -y "$OUTPUT_FILE"
+else
+  ffmpeg -i $1 \
+  -vf "scale=512:512:force_original_aspect_ratio=decrease,fps=30" \
+  -c:v libvpx-vp9 \
+  -b:v 0 \
+  -crf 45 \
+  -an \
+  -deadline realtime \
+  -row-mt 1 \
+  -y $OUTPUT_FILE
+fi
+
+if [[ $? -eq 0 ]]; then
+  pesoSticker=`du -hs $OUTPUT_FILE | sed "s/\t.*//"`
+  echo "la conversione è avvenuta con successo e lo sticker pesa: $pesoSticker 🏋️"
+fi
+
