@@ -48,7 +48,7 @@
 #     └── dispense2324 (alta leggibilità).pdf
 
 
-VAULT="/Users/macpro/Documents/vault"
+VAULT="/path/to/your/vault"
 
 # controllo esistenza di VAULT
 if [[ ! -d $VAULT ]]; then
