@@ -2,9 +2,9 @@
 # Permette di sincronizzare il contenuto di una cartella di questo pc ($1) all'interno di una direcotry del telefono android ($2)
 # $1 percorso alla cartella "da copiare" (pc)
 # $2 percorso alla cartella che riceverà la versione sincronizzata (telefono)
-# e.g. $1 = /Users/macpro/Documents/vault 
+# e.g. $1 = /Users/john/Documents/vault 
 #      $2 = /sdcard/Documents/vault
-# e.g. $1 = /Users/macpro/Music/playlists
+# e.g. $1 = /Users/john/Music/playlists
 #      $2 = /sdcard/Music/playlists
 
 

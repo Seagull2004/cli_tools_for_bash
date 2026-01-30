@@ -17,7 +17,7 @@ OUTPUT="clip_$N_EXISTING_CLIPS.mp4"
 # Estrai e converti con bitrate 3000k
 ffmpeg -ss "$START" -t "$DURATION" -i "$INPUT" \
   -c:v libx264 -b:v 8000k -c:a aac -b:a 192k \
-  -movflags +faststart "/Users/macpro/Desktop/$OUTPUT"
+  -movflags +faststart "$HOME/Desktop/$OUTPUT"
 
 # # Copia il file negli appunti
 # if command -v pbcopy &> /dev/null; then

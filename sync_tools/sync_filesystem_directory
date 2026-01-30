@@ -3,7 +3,7 @@
 # $1 percorso alla cartella "da sincronzzare" (pc)
 # $2 percorso alla cartella di destinazione (stesso file system)
 
-# e.g. $1 = "/Users/macpro/Music/playlists"
+# e.g. $1 = "/Users/john/Music/playlists"
 #      $2 = "/Volumes/NO NAME"
 
 # COSTANTI E FUNZIONI
