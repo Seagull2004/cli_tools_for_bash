@@ -34,6 +34,7 @@ if [[ isCrfPresent -eq 1 ]]; then
   -b:v 0 \
   -crf $2 \
   -an \
+  -t 3 \
   -deadline realtime \
   -row-mt 1 \
   -y "$OUTPUT_FILE"
@@ -44,6 +45,7 @@ else
   -b:v 0 \
   -crf 45 \
   -an \
+  -t 3 \
   -deadline realtime \
   -row-mt 1 \
   -y $OUTPUT_FILE
